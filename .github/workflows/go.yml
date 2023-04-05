@@ -17,6 +17,7 @@ on:
 env:
   MAJOR_VERSION: 1
   MINOR_VERSION: 0
+  PATCH_VERSION: 0
 
 jobs:
   build_and_push:
@@ -26,21 +27,21 @@ jobs:
 
     ## Builds our docker image!
     - name: Build the Docker image
-      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }} 
+      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} 
 
     ## Publishes our image to Docker Hub 😎
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         ## the name of our image
-        name: maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }} 
+        name: maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} 
         ## Here we pass in our Docker Username
         username: ${{ secrets.DOCKER_USERNAME }}
         ## and our Docker password which 
         password: ${{ secrets.DOCKER_PASSWORD }}
   
-    - name: Install Dependencies
-      run: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+    # - name: Install Dependencies
+    #   run: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-    - name: Package Helm Chart
-      run: helm package ./helm/goapi --version=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }}
+    # - name: Package Helm Chart
+    #   run: helm package ./helm/goapi --version=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }}
