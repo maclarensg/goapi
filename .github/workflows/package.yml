@@ -31,8 +31,6 @@ jobs:
         run: |
           CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
           helm package ${CHART_PATH} --version=${CHART_VERSION}
-          mv /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz ./
-          ls ${CHART_NAME}-${CHART_VERSION}.tgz 
 
       - name: Upload Release Asset
         id: upload-release-asset 
