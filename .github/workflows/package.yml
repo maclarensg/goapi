@@ -21,19 +21,20 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-      - name: Package Helm Chart
-        run: |
-          CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
-          helm package ${CHART_PATH} --version=${CHART_VERSION}
-          mkdir package
-          mv /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz package/
-      
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Package Helm Chart
+        run: |
+          CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
+          helm package ${CHART_PATH} --version=${CHART_VERSION}
+          mkdir package
+          mv /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz package/
+          ls package
+          
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1.0.2
