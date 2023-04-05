@@ -13,23 +13,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout source code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Install Dependencies
       run: |
         curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-    - name: Package Helm Chart
+    - name: Set Chart Version
       run: |
         CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
         echo "Chart version: ${CHART_VERSION}"
-        helm package ${CHART_PATH} --version=${CHART_VERSION}
+        echo "##[set-output name=chart_version]${CHART_VERSION}"
+
+    - name: Package Helm Chart
+      run: |
+        helm package ${CHART_PATH} --version=${{ steps.set_version.outputs.chart_version }}
 
     - name: Upload Helm Chart as GitHub Release Asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz
-        asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz
+        asset_path: ./goapi-${{ steps.set_version.outputs.chart_version }}.tgz
+        asset_name: goapi-${{ steps.set_version.outputs.chart_version }}.tgz
         asset_content_type: application/gzip
         api_key: ${{ secrets.GITHUB_TOKEN }}
