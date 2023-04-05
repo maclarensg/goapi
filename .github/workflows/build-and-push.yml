@@ -1,24 +1,29 @@
-name: Build and Push Docker Image
+name: Run Build and Push to Dockerhub
+
 on:
-  push:
+  pull_request:
     branches:
       - main
 
-jobs:
-  build-and-push:
+jobs:  
+  build-push:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout Code
+      uses: actions/checkout@v2
+   
+    ## Builds our docker image!
+    - name: Build the Docker image
+      run: docker build . -t maclarensg/goapi:latest -t maclarensg/goapi:${{ github.sha }}
 
-      - name: Configure Docker
-        run: |
-          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
-
-      - name: Build Docker image
-        run: |
-          docker build -t maclarensg/goapi:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
-          docker push maclarensg/goapi:${{ github.sha }}
+    ## Publishes our image to Docker Hub 😎
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        ## the name of our image
+        name: maclarensg/goapi:${{ github.sha }}
+        ## Here we pass in our Docker Username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        ## and our Docker password which 
+        password: ${{ secrets.DOCKER_PASSWORD }}
