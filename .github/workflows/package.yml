@@ -29,7 +29,7 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./${CHART_NAME}-${CHART_VERSION}.tgz
+        asset_path: /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz
         asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz
         asset_content_type: application/gzip
         api_key: ${{ secrets.GITHUB_TOKEN }}
