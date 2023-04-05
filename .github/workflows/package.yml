@@ -21,19 +21,18 @@ jobs:
 
     - name: Set Chart Version
       run: |
-        CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
-        echo "Chart version: ${CHART_VERSION}"
-        echo "##[set-output name=chart_version]${CHART_VERSION}"
+        echo "CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+        echo "Chart version: $CHART_VERSION"
 
     - name: Package Helm Chart
       run: |
-        helm package ${CHART_PATH} --version=${{ steps.set_version.outputs.chart_version }}
+        helm package ${CHART_PATH} --version=${CHART_VERSION}
 
     - name: Upload Helm Chart as GitHub Release Asset
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./goapi-${{ steps.set_version.outputs.chart_version }}.tgz
-        asset_name: goapi-${{ steps.set_version.outputs.chart_version }}.tgz
+        asset_path: ./goapi-${CHART_VERSION}.tgz
+        asset_name: goapi-${CHART_VERSION}.tgz
         asset_content_type: application/gzip
         api_key: ${{ secrets.GITHUB_TOKEN }}
