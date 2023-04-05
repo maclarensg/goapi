@@ -1,7 +1,0 @@
-apiVersion: v2
-name: goapi
-version: 0.1.0
-description: A Helm chart for the Go API
-maintainers:
-  - name: Your Name
-    email: your.email@example.com
