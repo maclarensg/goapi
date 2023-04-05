@@ -1,0 +1,34 @@
+name: Package and Upload Helm Chart as GitHub Release Asset
+
+on:
+  release:
+    types: [created]
+
+env:
+  CHART_NAME: goapi
+  CHART_PATH: ./helm/goapi
+  CHART_VERSION: ${{ github.ref }}
+
+jobs:
+  package_and_upload:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+    - name: Package Helm Chart
+      run: |
+        helm package ${CHART_PATH} --version=${CHART_VERSION}
+
+    - name: Upload Helm Chart as GitHub Release Asset
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ./${CHART_NAME}-${CHART_VERSION}.tgz
+        asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz
+        asset_content_type: application/gzip
+        api_key: ${{ secrets.GITHUB_TOKEN }}
