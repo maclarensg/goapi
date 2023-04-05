@@ -29,4 +29,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: my-chart-artifact
-          path: /home/runner/work/goapi/goapi/${{ env.CHART_NAME }}-${{ env.CHART_VERSION }}.tgz
+          path: /home/runner/work/goapi/goapi/${CHART_PATH}-${CHART_VERSION}.tgz
