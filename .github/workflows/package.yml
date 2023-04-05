@@ -25,8 +25,8 @@ jobs:
           CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
           helm package ${CHART_PATH} --version=${CHART_VERSION}
       
-      - name: Upload helm package
+      - name: Upload Helm chart artifact
         uses: actions/upload-artifact@v2
         with:
-          name: helm-chart
-          path: /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz
+          name: my-chart-artifact
+          path: /home/runner/work/goapi/goapi/${{ env.CHART_NAME }}-${{ env.CHART_VERSION }}.tgz
