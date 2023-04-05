@@ -4,6 +4,9 @@ FROM golang:1.17-alpine as build
 # Set the working directory to /app
 WORKDIR /app
 
+# Required to support testing
+RUN apk add --no-cache gcc musl-dev
+
 # Copy the current directory contents into the container at /app
 COPY . /app
 
