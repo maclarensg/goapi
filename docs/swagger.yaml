@@ -1,7 +1,63 @@
-basePath: /api/v1
+basePath: /v1
+definitions:
+  main.Address:
+    properties:
+      ip:
+        type: string
+    type: object
+  main.HTTPError:
+    properties:
+      message:
+        type: string
+    type: object
+  main.Query:
+    properties:
+      addresses:
+        items:
+          $ref: '#/definitions/main.Address'
+        type: array
+      client_ip:
+        type: string
+      created_at:
+        type: integer
+      domain:
+        type: string
+    type: object
+  main.RootResponse:
+    properties:
+      date:
+        type: integer
+      kubernetes:
+        type: boolean
+      version:
+        type: string
+    type: object
+  main.ValidateIPRequest:
+    properties:
+      ip:
+        type: string
+    type: object
+  main.ValidateIPResponse:
+    properties:
+      status:
+        type: boolean
+    type: object
 info:
   contact: {}
 paths:
+  /:
+    get:
+      description: Get application version, current date (UNIX epoch), and Kubernetes
+        status.
+      operationId: get-root
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.RootResponse'
+      summary: Get root information
   /example/helloworld:
     get:
       consumes:
@@ -14,7 +70,89 @@ paths:
           description: OK
           schema:
             type: string
-      summary: ping example
+      summary: self implemenetation ping example
       tags:
       - example
+  /health:
+    get:
+      description: Returns information about the health of the server, including the
+        current time, uptime, and database connection status.
+      operationId: check_health
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Returns information about the health of the server
+  /v1/history:
+    get:
+      description: Returns a list of all queries made to the API
+      operationId: queries_history
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/main.Query'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.HTTPError'
+      summary: Returns a list of all queries made to the API
+  /v1/tools/lookup:
+    get:
+      description: Performs a DNS lookup for the specified domain and returns all
+        IPv4 addresses
+      operationId: lookup_domain
+      parameters:
+      - description: Domain name
+        in: query
+        name: domain
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.Query'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/main.HTTPError'
+      summary: Performs a DNS lookup for the specified domain and returns all IPv4
+        addresses
+  /v1/tools/validate:
+    post:
+      consumes:
+      - application/json
+      description: Validates an IP address (IPv4 or IPv6)
+      operationId: validate_ip
+      parameters:
+      - description: IP to validate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/main.ValidateIPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.ValidateIPResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/main.HTTPError'
+      summary: Validates an IP address
 swagger: "2.0"

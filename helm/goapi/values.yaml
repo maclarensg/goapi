@@ -1,0 +1,18 @@
+image:
+  repository: maclarens/goapi
+  tag: latest
+  pullPolicy: IfNotPresent
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 3000
+ingress:
+  enabled: false
+  annotations: {}
+  paths:
+    - /
+config:
+  REDIS_ADDR: redis:6379
+  REDIS_PASSWORD: my-password
+  REDIS_DB: 0
+  MAX_QUERY_HISTORY: 20
