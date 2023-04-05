@@ -6,9 +6,14 @@ name: Go
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - '**.go'
+      - 'Dockerfile'
   pull_request:
     branches: [ "master" ]
-
+    paths:
+      - '**.go'
+      - 'Dockerfile'
 env:
   MAJOR_VERSION: 1
   MINOR_VERSION: 0
