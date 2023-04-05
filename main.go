@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"sort"
 	"strconv"
-	"strings"
 	"syscall"
 	"time"
 
@@ -27,7 +25,8 @@ var maxQueryHistory int
 var redisClient *redis.Client
 var ctx = context.Background()
 
-const defaultMaxQueryHistory = 100
+const RedisKey = "queries"
+const defaultMaxQueryHistory = 20
 
 type Address struct {
 	IP string `json:"ip"`
@@ -59,8 +58,6 @@ type ValidateIPResponse struct {
 	Status bool `json:"status"`
 }
 
-var queries []Query
-
 func initRedis(host string, port int, password string, db int) error {
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", host, port),
@@ -86,53 +83,23 @@ func initRedis(host string, port int, password string, db int) error {
 // @Router /v1/history [get]
 func historyHandler(c *gin.Context) {
 	// Retrieve the latest 20 saved queries from Redis
-	results, err := redisClient.Keys(ctx, "query:*").Result()
+	queriesJSON, err := redisClient.LRange(ctx, RedisKey, 0, int64(maxQueryHistory)-1).Result()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error retrieving query history"})
+		c.JSON(500, HTTPError{"Error retrieving query history from Redis"})
 		return
 	}
-	sort.Sort(sort.Reverse(sort.StringSlice(results)))
-	results = results[:min(len(results), 20)]
 
-	// Parse the query logs into a slice of Query objects
-	queries := make([]Query, len(results))
-	for i, key := range results {
-		queryLog, err := redisClient.Get(ctx, key).Result()
+	queries := make([]Query, len(queriesJSON))
+	for i, queryJSON := range queriesJSON {
+		err = json.Unmarshal([]byte(queryJSON), &queries[i])
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error parsing query history"})
-			return
+			fmt.Println("Error unmarshaling query JSON:", err)
+			continue
 		}
-
-		var query QueryLog
-		err = json.Unmarshal([]byte(queryLog), &query)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "Error parsing query history"})
-			return
-		}
-
-		addresses := strings.Split(query.Addresses, ",")
-		queryObj := Query{
-			Domain:    query.Domain,
-			ClientIP:  query.ClientIP,
-			CreatedAt: query.CreatedAt,
-			Addresses: make([]Address, len(addresses)),
-		}
-		for j, addr := range addresses {
-			queryObj.Addresses[j] = Address{IP: addr}
-		}
-
-		queries[i] = queryObj
 	}
 
 	// Return the queries as a JSON response
-	c.JSON(http.StatusOK, queries)
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	c.JSON(200, queries)
 }
 
 // @BasePath /v1
@@ -207,13 +174,6 @@ func lookupHandler(c *gin.Context) {
 
 	logQuery(q)
 
-	queries = append(queries, q)
-
-	// Ensure that queries slice doesn't exceed maxQueryHistory
-	if len(queries) > maxQueryHistory {
-		queries = queries[len(queries)-maxQueryHistory:]
-	}
-
 	c.JSON(200, q)
 }
 
@@ -249,29 +209,17 @@ func validateHandler(c *gin.Context) {
 }
 
 func logQuery(q Query) {
-	addresses := make([]string, len(q.Addresses))
-	for i, addr := range q.Addresses {
-		addresses[i] = addr.IP
-	}
-	addressStr := strings.Join(addresses, ",")
-
-	queryLog := QueryLog{
-		Domain:    q.Domain,
-		ClientIP:  q.ClientIP,
-		CreatedAt: q.CreatedAt,
-		Addresses: addressStr,
-	}
-
-	jsonBytes, err := json.Marshal(queryLog)
+	queryJSON, err := json.Marshal(q)
 	if err != nil {
-		log.Printf("Failed to log query: %v", err)
+		fmt.Println("Error marshaling query:", err)
 		return
 	}
 
-	key := fmt.Sprintf("query:%s:%d", q.Domain, q.CreatedAt)
-	_, err = redisClient.Set(ctx, key, jsonBytes, 0).Result()
+	err = redisClient.LPush(ctx, RedisKey, queryJSON).Err()
+
 	if err != nil {
 		log.Printf("Failed to log query: %v", err)
+		return
 	}
 }
 

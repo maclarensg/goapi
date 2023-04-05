@@ -1,18 +1,30 @@
+# Default values for goapi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
 image:
-  repository: maclarens/goapi
+  repository: maclarensg/goapi
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
+
+namespace: goapi
+
 service:
+  name: goapi
   type: ClusterIP
-  port: 80
-  targetPort: 3000
+  port: 3000
+
 ingress:
   enabled: false
   annotations: {}
-  paths:
-    - /
-config:
-  REDIS_ADDR: redis:6379
-  REDIS_PASSWORD: my-password
-  REDIS_DB: 0
-  MAX_QUERY_HISTORY: 20
+  path: /
+  hosts:
+    - goapi.localdev.me
+
+redis:
+  host: redis
+  port: 6379
+  db: 0
+  password_base64: "bXlzZWNyZXRwYXNzd29yZA=="
+
+ingressEnabled: true
