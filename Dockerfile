@@ -10,6 +10,9 @@ COPY . /app
 # Build the Go application
 RUN go build -o app
 
+# Test the Go application when 
+RUN go test .
+
 # Use a minimal Alpine image to run the application
 FROM alpine:3.14
 
