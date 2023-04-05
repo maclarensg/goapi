@@ -27,7 +27,7 @@ jobs:
 
     ## Builds our docker image!
     - name: Build the Docker image
-      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} 
+      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} -t maclarensg/goapi:latest
 
     ## Publishes our image to Docker Hub 😎
     - name: Publish to Registry

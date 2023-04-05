@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: goapi
-        image: maclarensg/goapi:1.0.8
+        image: maclarensg/goapi:latest
         env:
         - name: REDIS_HOST
           valueFrom:
