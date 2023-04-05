@@ -29,6 +29,7 @@ jobs:
 
       - name: Package Helm Chart
         run: |
+          echo ${{ github.ref }}
           CHART_VERSION=$(echo ${GITHUB_REF} | sed 's/refs\/tags\///')
           helm package ${CHART_PATH} --version=${CHART_VERSION}
 
