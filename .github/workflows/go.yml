@@ -43,4 +43,4 @@ jobs:
       run: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
     - name: Package Helm Chart
-      run: helm package <path-to-helm-chart> --version=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }}
+      run: helm package ./helm/goapi --version=${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ github.run_number }}
