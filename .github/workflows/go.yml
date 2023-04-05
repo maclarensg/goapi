@@ -26,3 +26,18 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+
+    ## Builds our docker image!
+    - name: Build the Docker image
+      run: docker build . -t maclarensg/goapi:latest -t maclarensg/goapi:${{ github.sha }}
+
+    ## Publishes our image to Docker Hub 😎
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        ## the name of our image
+        name: maclarensg/goapi:${{ github.sha }}
+        ## Here we pass in our Docker Username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        ## and our Docker password which 
+        password: ${{ secrets.DOCKER_PASSWORD }}
