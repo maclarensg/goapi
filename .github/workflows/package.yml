@@ -4,10 +4,6 @@ on:
   release:
     types: [created]
 
-env:
-  CHART_NAME: goapi
-  CHART_PATH: ./helm/goapi
-
 jobs:
   chart:
     name: Release Chart
