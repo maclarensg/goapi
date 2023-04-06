@@ -1,0 +1,57 @@
+name: Package and Upload Helm Chart as GitHub Release Asset
+
+on:
+  release:
+    types: [created]
+
+env:
+  CHART_NAME: goapi
+  CHART_PATH: ./charts/goapi
+  IMAGE_VERSION: ""
+
+jobs:
+  build_helm:
+    name: Build release helm
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.3.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      
+      - name: Package Helm Chart # Upload release helm does not work with ${variable} so need to rename helm-chart.tgz 
+        run: |
+          CHART_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+          echo "Chart version: $CHART_VERSION"
+          helm package ${CHART_PATH} --version=${CHART_VERSION}
+          mv /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz ./helm-chart.tgz 
+
+      - name: Upload release helm
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./helm-chart.tgz
+          asset_name: helm-chart.tgz
+          asset_content_type: application/octet-stream
+
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    ## Builds our docker image!
+    - name: Build the Docker image and pull with release tag
+      run: |
+        IMAGE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build . -t maclarensg/goapi:${IMAGE_VERSION} -t maclarensg/goapi:latest
+        docker push maclarensg/goapi:${IMAGE_VERSION}
+        docker push maclarensg/goapi:latest
+

@@ -3,28 +3,208 @@
     "info": {
         "contact": {}
     },
-    "basePath": "/api/v1",
     "paths": {
-        "/example/helloworld": {
+        "/": {
             "get": {
-                "description": "do ping",
+                "description": "Get information about the application, including its version, date, and Kubernetes status",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get information about the application",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.RootResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Returns information about the health of the server, including the current time, uptime, and database connection status.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Returns information about the health of the server",
+                "operationId": "check_health",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        },
+        "/v1/history": {
+            "get": {
+                "description": "Returns a list of all queries made to the API",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Returns a list of all queries made to the API",
+                "operationId": "queries_history",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/main.Query"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tools/lookup": {
+            "get": {
+                "description": "Performs a DNS lookup for the specified domain and returns all IPv4 addresses",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Performs a DNS lookup for the specified domain and returns all IPv4 addresses",
+                "operationId": "lookup_domain",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Domain name",
+                        "name": "domain",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/main.Query"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/main.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/tools/validate": {
+            "post": {
+                "description": "Validates an IP address (IPv4 or IPv6)",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "example"
+                "summary": "Validates an IP address",
+                "operationId": "validate_ip",
+                "parameters": [
+                    {
+                        "description": "IP to validate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/main.ValidateIPRequest"
+                        }
+                    }
                 ],
-                "summary": "ping example",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/main.ValidateIPResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/main.HTTPError"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "main.Address": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.HTTPError": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.Query": {
+            "type": "object",
+            "properties": {
+                "addresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/main.Address"
+                    }
+                },
+                "client_ip": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "integer"
+                },
+                "domain": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.RootResponse": {
+            "type": "object",
+            "properties": {
+                "date": {
+                    "type": "integer"
+                },
+                "kubernetes": {
+                    "type": "boolean"
+                },
+                "version": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ValidateIPRequest": {
+            "type": "object",
+            "properties": {
+                "ip": {
+                    "type": "string"
+                }
+            }
+        },
+        "main.ValidateIPResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "boolean"
                 }
             }
         }

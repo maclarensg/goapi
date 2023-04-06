@@ -6,23 +6,40 @@ name: Go
 on:
   push:
     branches: [ "master" ]
+    paths:
+      - '**.go'
+      - 'Dockerfile'
   pull_request:
     branches: [ "master" ]
+    paths:
+      - '**.go'
+      - 'Dockerfile'
+env:
+  MAJOR_VERSION: 1
+  MINOR_VERSION: 0
+  PATCH_VERSION: 0
 
 jobs:
-
-  build:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
+    ## Builds our docker image!
+    - name: Build the Docker image
+      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }}
+
+    ## Publishes our image:<build_version> to Docker Hub 😎
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
-        go-version: 1.19
+        ## the name of our image
+        name: maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} 
+        ## Here we pass in our Docker Username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        ## and our Docker password which 
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - name: Build
-      run: go build -v ./...
 
-    - name: Test
-      run: go test -v ./...
+  
+    
