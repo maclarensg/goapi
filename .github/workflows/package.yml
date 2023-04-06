@@ -48,8 +48,8 @@ jobs:
     ## Builds our docker image!
     - name: Build the Docker image
       run: |
-      IMAGE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
-      docker build . -t maclarensg/goapi:${IMAGE_VERSION} -t maclarensg/goapi:latest
+        IMAGE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+        docker build . -t maclarensg/goapi:${IMAGE_VERSION} -t maclarensg/goapi:latest
 
     ## Publishes our image:<tag_version> to Docker Hub 😎
     - name: Publish to Registry
