@@ -96,6 +96,7 @@ func init() {
 func main() {
 	r := gin.Default()
 
+	// Routes
 	docs.SwaggerInfo.BasePath = "/"
 
 	v1 := r.Group("/v1")
@@ -141,9 +142,9 @@ func main() {
 	log.Println("Shutting down server...")
 
 	// shut down the server gracefully
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	bgctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
+	if err := srv.Shutdown(bgctx); err != nil {
 		log.Fatalf("Server shutdown failed: %v\n", err)
 	}
 	log.Println("Server shutdown successful")
