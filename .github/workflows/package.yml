@@ -4,6 +4,10 @@ on:
   release:
     types: [created]
 
+env:
+  CHART_NAME: goapi
+  CHART_PATH: ./charts/goapi
+
 jobs:
   build:
     name: Build release helm
@@ -18,6 +22,12 @@ jobs:
         uses: bruceadams/get-release@v1.3.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      
+      - name: Package Helm Chart
+        run: |
+          CHART_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+          echo "Chart version: $CHART_VERSION"
+          helm package ${CHART_PATH} --version=${CHART_VERSION}
 
       - name: Upload release binary
         uses: actions/upload-release-asset@v1.0.2
@@ -25,8 +35,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./README.md
-          asset_name: README.md
+          asset_path: ./${CHART_NAME}-${CHART_VERSION}.tgz 
+          asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz 
           asset_content_type: application/octet-stream
 
 
