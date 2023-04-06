@@ -28,6 +28,7 @@ jobs:
           CHART_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
           echo "Chart version: $CHART_VERSION"
           helm package ${CHART_PATH} --version=${CHART_VERSION}
+          mv /home/runner/work/goapi/goapi/${CHART_NAME}-${CHART_VERSION}.tgz ./helm-chart.tgz
 
       - name: Upload release binary
         uses: actions/upload-release-asset@v1.0.2
@@ -35,8 +36,8 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./${CHART_NAME}-${CHART_VERSION}.tgz 
-          asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz 
+          asset_path: ./helm-chart.tgz
+          asset_name: helm-chart.tgz
           asset_content_type: application/octet-stream
 
 
