@@ -9,7 +9,7 @@ env:
   CHART_PATH: ./charts/goapi
 
 jobs:
-  build:
+  build_helm:
     name: Build release helm
     runs-on: ubuntu-latest
     permissions: write-all
@@ -40,4 +40,35 @@ jobs:
           asset_name: helm-chart.tgz
           asset_content_type: application/octet-stream
 
+  build_and_push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
 
+    ## Builds our docker image!
+    - name: Build the Docker image
+      run: |
+      IMAGE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
+      docker build . -t maclarensg/goapi:${IMAGE_VERSION} -t maclarensg/goapi:latest
+
+    ## Publishes our image:<tag_version> to Docker Hub 😎
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        ## the name of our image
+        name: maclarensg/goapi:${IMAGE_VERSION} 
+        ## Here we pass in our Docker Username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        ## and our Docker password which 
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    ## Publishes our image:<latest> to Docker Hub 😎
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        ## the name of our image
+        name: maclarensg/goapi:latest
+        ## Here we pass in our Docker Username
+        username: ${{ secrets.DOCKER_USERNAME }}
+        ## and our Docker password which 
+        password: ${{ secrets.DOCKER_PASSWORD }}

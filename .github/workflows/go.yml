@@ -27,7 +27,7 @@ jobs:
 
     ## Builds our docker image!
     - name: Build the Docker image
-      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }} -t maclarensg/goapi:latest
+      run: docker build . -t maclarensg/goapi:${{ env.MAJOR_VERSION }}.${{ env.MINOR_VERSION }}.${{ env.PATCH_VERSION }}-build${{ github.run_number }}
 
     ## Publishes our image:<build_version> to Docker Hub 😎
     - name: Publish to Registry
@@ -40,15 +40,6 @@ jobs:
         ## and our Docker password which 
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    ## Publishes our image:<latest> to Docker Hub 😎
-    - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        ## the name of our image
-        name: maclarensg/goapi:latest
-        ## Here we pass in our Docker Username
-        username: ${{ secrets.DOCKER_USERNAME }}
-        ## and our Docker password which 
-        password: ${{ secrets.DOCKER_PASSWORD }}
+
   
     
