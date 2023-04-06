@@ -47,7 +47,7 @@ jobs:
     - uses: actions/checkout@v3
 
     ## Builds our docker image!
-    - name: Build the Docker image and pull with release tag
+    - name: Build the Docker image and push with release tag
       run: |
         IMAGE_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
