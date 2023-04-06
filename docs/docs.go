@@ -18,40 +18,16 @@ const docTemplate = `{
     "paths": {
         "/": {
             "get": {
-                "description": "Get application version, current date (UNIX epoch), and Kubernetes status.",
+                "description": "Get information about the application, including its version, date, and Kubernetes status",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get root information",
-                "operationId": "get-root",
+                "summary": "Get information about the application",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/main.RootResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/example/helloworld": {
-            "get": {
-                "description": "do ping",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "example"
-                ],
-                "summary": "self implemenetation ping example",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -251,7 +227,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "",
 	Host:             "",
-	BasePath:         "/v1",
+	BasePath:         "",
 	Schemes:          []string{},
 	Title:            "",
 	Description:      "",
