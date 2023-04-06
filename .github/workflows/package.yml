@@ -8,6 +8,7 @@ jobs:
   build:
     name: Build release helm
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
