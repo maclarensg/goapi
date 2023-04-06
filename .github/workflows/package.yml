@@ -4,48 +4,28 @@ on:
   release:
     types: [created]
 
-env:
-  CHART_NAME: goapi
-  CHART_PATH: ./charts/goapi
-
 jobs:
-  chart:
-    name: Release Chart
+  build:
+    name: Build release helm
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
-      - name: Checkout source code
+      - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Install Dependencies
-        run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.3.2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Set Chart Version
-        run: |
-          echo "CHART_VERSION=$(echo ${{ github.ref }} | sed 's/refs\/tags\///')" >> $GITHUB_ENV
-          echo "Chart version: $CHART_VERSION"
-
-      - name: Package Helm Chart
-        run: |
-          helm package ${CHART_PATH} --version=${CHART_VERSION}
-
-      - name: Upload Release Asset
-        id: upload-release-asset 
+      - name: Upload release binary
         uses: actions/upload-release-asset@v1.0.2
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./${CHART_NAME}-${CHART_VERSION}.tgz 
-          asset_name: ${CHART_NAME}-${CHART_VERSION}.tgz 
-          asset_content_type: application/gzip
-
+          asset_path: ./README.md
+          asset_name: README.md
+          asset_content_type: application/octet-stream
 
 
